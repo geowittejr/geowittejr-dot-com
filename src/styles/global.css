@@ -1,5 +1,8 @@
+/* Theme tokens. `data-theme` is set on <html> by the inline script in BaseLayout;
+   the media query is the no-JS fallback. */
 :root {
   --bg: #ffffff;
+  --bg-subtle: #f6f7f9;
   --fg: #1a1a1a;
   --muted: #5f6368;
   --accent: #2557d6;
@@ -7,16 +10,44 @@
   --max-width: 42rem;
   --font-sans: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
   --font-mono: ui-monospace, 'Cascadia Code', Menlo, monospace;
-  color-scheme: light dark;
+  --radius: 6px;
+  color-scheme: light;
+}
+
+:root[data-theme='dark'] {
+  --bg: #111214;
+  --bg-subtle: #1a1c1f;
+  --fg: #e8e8e8;
+  --muted: #9aa0a6;
+  --accent: #7aa2ff;
+  --border: #2a2c30;
+  color-scheme: dark;
 }
 
 @media (prefers-color-scheme: dark) {
-  :root {
+  :root:not([data-theme]) {
     --bg: #111214;
+    --bg-subtle: #1a1c1f;
     --fg: #e8e8e8;
     --muted: #9aa0a6;
     --accent: #7aa2ff;
     --border: #2a2c30;
+    color-scheme: dark;
+  }
+}
+
+/* Code blocks: Shiki dual themes (see astro.config.mjs). */
+:root[data-theme='dark'] .astro-code,
+:root[data-theme='dark'] .astro-code span {
+  color: var(--shiki-dark) !important;
+  background-color: var(--shiki-dark-bg) !important;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme]) .astro-code,
+  :root:not([data-theme]) .astro-code span {
+    color: var(--shiki-dark) !important;
+    background-color: var(--shiki-dark-bg) !important;
   }
 }
 
@@ -32,6 +63,7 @@ html {
   line-height: 1.65;
   background: var(--bg);
   color: var(--fg);
+  -webkit-text-size-adjust: 100%;
 }
 
 body {
@@ -39,6 +71,7 @@ body {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
+  background: var(--bg);
 }
 
 main {
@@ -51,8 +84,30 @@ main {
 
 h1,
 h2,
-h3 {
+h3,
+h4 {
   line-height: 1.25;
+  text-wrap: balance;
+}
+
+h1 {
+  font-size: 2rem;
+  margin: 0 0 1rem;
+}
+
+h2 {
+  font-size: 1.4rem;
+  margin: 2.5rem 0 0.75rem;
+}
+
+h3 {
+  font-size: 1.15rem;
+  margin: 2rem 0 0.5rem;
+}
+
+p,
+li {
+  text-wrap: pretty;
 }
 
 a {
@@ -60,11 +115,103 @@ a {
   text-underline-offset: 0.2em;
 }
 
-code {
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+img,
+svg,
+video {
+  max-width: 100%;
+  height: auto;
+}
+
+hr {
+  border: 0;
+  border-top: 1px solid var(--border);
+  margin: 2.5rem 0;
+}
+
+code,
+kbd,
+pre {
   font-family: var(--font-mono);
   font-size: 0.9em;
 }
 
+:not(pre) > code {
+  background: var(--bg-subtle);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 0.1em 0.3em;
+}
+
+pre {
+  padding: 1rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow-x: auto;
+  line-height: 1.5;
+}
+
+blockquote {
+  margin: 1.5rem 0;
+  padding: 0 1rem;
+  border-left: 3px solid var(--border);
+  color: var(--muted);
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.95rem;
+}
+
+th,
+td {
+  text-align: left;
+  padding: 0.5rem;
+  border-bottom: 1px solid var(--border);
+}
+
 .muted {
   color: var(--muted);
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.skip-link {
+  position: absolute;
+  left: 1rem;
+  top: -3rem;
+  z-index: 10;
+  padding: 0.5rem 0.75rem;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+
+.skip-link:focus {
+  top: 1rem;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    transition: none !important;
+    animation: none !important;
+  }
 }

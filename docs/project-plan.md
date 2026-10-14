@@ -206,7 +206,10 @@ Each project body follows this outline. Senior hiring cares more about judgment 
 - [ ] **M1: Scaffold.** Astro + TS + React/MDX/sitemap integrations, folder structure above, deploy workflow, and a "hello world" live on the domain.
   - [x] Astro project, integrations, strict TS, content schemas, placeholder pages, deploy workflow, `CNAME`
   - [ ] Merge to `main`, set Pages source to GitHub Actions, configure DNS, enforce HTTPS
-- [ ] **M2: Layout & design.** BaseLayout, Header and Footer, global styles, dark mode, SEO meta.
+- [x] **M2: Layout & design.** BaseLayout, Header and Footer, global styles, dark mode, SEO meta.
+  - Dark mode: `data-theme` on `<html>`, set pre-paint by an inline script (stored choice, else OS); `ThemeToggle.tsx` island flips and persists it; no-JS falls back to `prefers-color-scheme`. Shiki dual themes follow it.
+  - `BaseLayout` props: `title`, `description`, `image` (OG/Twitter; default image lands in M5), `type` + `publishedTime`/`modifiedTime` for posts, `noindex`.
+  - Resume link in the header; skip link, focus rings, prose/code/table styles.
 - [ ] **M3: Content collections.** Schemas, project and writing index and detail pages, RSS.
 - [ ] **M4: Real content.** About page, resume PDF, 3–4 project case studies, 1–2 posts.
 - [ ] **M5: Polish.** Lighthouse/a11y pass, OG image, 404 page, analytics decision.
@@ -224,6 +227,7 @@ Newest first. Each entry records what was decided and why, so the reasoning surv
 
 | Date       | Decision                                                                 | Rationale                                                          |
 | ---------- | ------------------------------------------------------------------------ | ------------------------------------------------------------------ |
+| 2026-10-14 | Theme via `data-theme` + inline pre-paint script; toggle is a React island | No flash of wrong theme; user choice persists; works without JS    |
 | 2026-10-14 | Astro 7 + Zod 4 (`import { z } from 'astro/zod'`), Node 22+              | Current stable at scaffold time; old `astro:content` `z` is deprecated |
 | 2026-10-14 | Deploy via GitHub Actions, not "deploy from branch"                      | Standard for Astro; frees `docs/` for design docs                  |
 | 2026-10-14 | Keep design docs in `docs/` with a shared template                       | Planning lives with the code; this plan is the top-level doc       |

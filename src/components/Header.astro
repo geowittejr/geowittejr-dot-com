@@ -1,11 +1,12 @@
 ---
-import { NAV, SITE_TITLE } from '../consts';
+import ThemeToggle from './ThemeToggle';
+import { LINKS, NAV, SITE_TITLE } from '../consts';
 
 const path = Astro.url.pathname;
 ---
 
 <header>
-  <nav>
+  <nav aria-label="Main">
     <a href="/" class="home">{SITE_TITLE}</a>
     <ul>
       {
@@ -17,6 +18,8 @@ const path = Astro.url.pathname;
           </li>
         ))
       }
+      <li><a href={LINKS.resume} class="resume">Resume</a></li>
+      <li><ThemeToggle client:visible /></li>
     </ul>
   </nav>
 </header>
@@ -37,7 +40,9 @@ const path = Astro.url.pathname;
   }
   ul {
     display: flex;
-    gap: 1.25rem;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem 1.25rem;
     list-style: none;
     margin: 0;
     padding: 0;
@@ -50,7 +55,31 @@ const path = Astro.url.pathname;
   a[aria-current='page'] {
     color: var(--accent);
   }
+  a[aria-current='page'] {
+    text-decoration: underline;
+    text-decoration-thickness: 2px;
+  }
   .home {
     font-weight: 600;
+  }
+  .resume {
+    color: var(--accent);
+    font-weight: 500;
+  }
+  /* :global because the button is rendered by a React island */
+  ul :global(.theme-toggle) {
+    display: grid;
+    place-items: center;
+    width: 2rem;
+    height: 2rem;
+    padding: 0;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: transparent;
+    color: var(--fg);
+    cursor: pointer;
+  }
+  ul :global(.theme-toggle:hover) {
+    color: var(--accent);
   }
 </style>
