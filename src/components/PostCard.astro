@@ -1,0 +1,21 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import FormattedDate from './FormattedDate.astro';
+import { url } from '../lib/url';
+
+interface Props {
+  post: CollectionEntry<'writing'>;
+}
+
+const { post } = Astro.props;
+const { title, description, pubDate, draft } = post.data;
+---
+
+<article>
+  <h3 class="m-0 text-lg font-semibold">
+    <a href={url(`/writing/${post.id}`)}>{title}</a>
+    {draft && <span class="ml-2 text-xs font-normal text-muted uppercase">Draft</span>}
+  </h3>
+  <p class="mt-0.5 mb-1 text-sm text-muted"><FormattedDate date={pubDate} /></p>
+  <p class="m-0">{description}</p>
+</article>

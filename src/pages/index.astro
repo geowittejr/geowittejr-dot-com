@@ -1,51 +1,67 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
+import ProjectCard from '../components/ProjectCard.astro';
+import PostCard from '../components/PostCard.astro';
 import { LINKS } from '../consts';
+import { getPosts, getProjects } from '../lib/content';
+import { url } from '../lib/url';
+
+const featured = (await getProjects()).filter((p) => p.data.featured).slice(0, 4);
+const recent = (await getPosts()).slice(0, 3);
+const h2 = 'mt-0 mb-4 text-2xl font-semibold';
 ---
 
 <BaseLayout>
-  <section class="hero">
-    <h1>Hi, I'm George.</h1>
-    <p class="lede">
+  <section class="pt-8 pb-4">
+    <h1 class="mt-0 mb-3 text-4xl font-bold">Hi, I'm George.</h1>
+    <p class="text-xl text-muted">
       I'm a senior software engineer. This site collects the projects I've worked on and my thoughts
       on building software.
     </p>
-    <p class="cta">
-      <a href="/about">About me</a>
-      <a href="/projects">Projects</a>
-      <a href={LINKS.resume}>Resume</a>
+    <p class="flex flex-wrap gap-5">
+      <a href={url('/about')}>About me</a>
+      <a href={url('/projects')}>Projects</a>
+      <a href={url(LINKS.resume)}>Resume</a>
     </p>
   </section>
 
-  <section>
-    <h2>Featured projects</h2>
-    <p class="muted">Coming soon.</p>
+  <section class="mt-10">
+    <h2 class={h2}>Featured projects</h2>
+    {
+      featured.length > 0 ? (
+        <>
+          <ul class="m-0 grid list-none gap-4 p-0">
+            {featured.map((project) => (
+              <li>
+                <ProjectCard project={project} />
+              </li>
+            ))}
+          </ul>
+          <p class="mt-4 mb-0"><a href={url('/projects')}>All projects →</a></p>
+        </>
+      ) : (
+        <p class="text-muted">Coming soon.</p>
+      )
+    }
   </section>
 
-  <section>
-    <h2>Recent writing</h2>
-    <p class="muted">Coming soon.</p>
+  <section class="mt-10">
+    <h2 class={h2}>Recent writing</h2>
+    {
+      recent.length > 0 ? (
+        <>
+          <ul class="m-0 grid list-none gap-6 p-0">
+            {recent.map((post) => (
+              <li>
+                <PostCard post={post} />
+              </li>
+            ))}
+          </ul>
+          <p class="mt-4 mb-0"><a href={url('/writing')}>All writing →</a></p>
+        </>
+      ) : (
+        <p class="text-muted">Coming soon.</p>
+      )
+    }
   </section>
 </BaseLayout>
-
-<style>
-  .hero {
-    padding: 2rem 0 1rem;
-  }
-  .hero h1 {
-    font-size: 2.5rem;
-    margin: 0 0 0.75rem;
-  }
-  .lede {
-    font-size: 1.2rem;
-    color: var(--muted);
-  }
-  .cta {
-    display: flex;
-    gap: 1.25rem;
-    flex-wrap: wrap;
-  }
-  section + section {
-    margin-top: 2.5rem;
-  }
-</style>

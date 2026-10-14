@@ -1,70 +1,150 @@
+@import 'tailwindcss';
+@plugin '@tailwindcss/typography';
+
+/* `dark:` follows the `data-theme` attribute set by BaseLayout's inline script;
+   the media query is the no-JS fallback. */
+@custom-variant dark {
+  &:where([data-theme='dark'], [data-theme='dark'] *) {
+    @slot;
+  }
+  @media (prefers-color-scheme: dark) {
+    &:where(:root:not([data-theme]), :root:not([data-theme]) *) {
+      @slot;
+    }
+  }
+}
+
+/* Theme tokens. Colors are CSS variables that swap per theme, so utilities like
+   `bg-bg text-fg border-border` work in both modes without `dark:` variants. */
 :root {
   --bg: #ffffff;
+  --bg-subtle: #f6f7f9;
   --fg: #1a1a1a;
   --muted: #5f6368;
   --accent: #2557d6;
   --border: #e5e7eb;
-  --max-width: 42rem;
-  --font-sans: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
-  --font-mono: ui-monospace, 'Cascadia Code', Menlo, monospace;
-  color-scheme: light dark;
+  color-scheme: light;
+}
+
+:root[data-theme='dark'] {
+  --bg: #111214;
+  --bg-subtle: #1a1c1f;
+  --fg: #e8e8e8;
+  --muted: #9aa0a6;
+  --accent: #7aa2ff;
+  --border: #2a2c30;
+  color-scheme: dark;
 }
 
 @media (prefers-color-scheme: dark) {
-  :root {
+  :root:not([data-theme]) {
     --bg: #111214;
+    --bg-subtle: #1a1c1f;
     --fg: #e8e8e8;
     --muted: #9aa0a6;
     --accent: #7aa2ff;
     --border: #2a2c30;
+    color-scheme: dark;
   }
 }
 
-*,
-*::before,
-*::after {
-  box-sizing: border-box;
+@theme inline {
+  --color-bg: var(--bg);
+  --color-bg-subtle: var(--bg-subtle);
+  --color-fg: var(--fg);
+  --color-muted: var(--muted);
+  --color-accent: var(--accent);
+  --color-border: var(--border);
 }
 
-html {
-  font-family: var(--font-sans);
-  font-size: 1.0625rem;
-  line-height: 1.65;
-  background: var(--bg);
-  color: var(--fg);
+@theme {
+  --font-sans: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --font-mono: ui-monospace, 'Cascadia Code', Menlo, monospace;
 }
 
-body {
-  margin: 0;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
+@layer base {
+  html {
+    font-size: 1.0625rem;
+    line-height: 1.65;
+    @apply bg-bg text-fg font-sans;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    text-wrap: balance;
+  }
+
+  p,
+  li {
+    text-wrap: pretty;
+  }
+
+  a {
+    @apply text-accent underline-offset-[0.2em];
+  }
+
+  :focus-visible {
+    @apply outline-2 outline-offset-2 outline-accent rounded-xs;
+  }
 }
 
-main {
-  flex: 1;
-  width: 100%;
-  max-width: var(--max-width);
-  margin: 0 auto;
-  padding: 2rem 1rem 4rem;
+/* Typography plugin: use the theme tokens instead of its gray palette. */
+.prose {
+  --tw-prose-body: var(--fg);
+  --tw-prose-headings: var(--fg);
+  --tw-prose-lead: var(--muted);
+  --tw-prose-links: var(--accent);
+  --tw-prose-bold: var(--fg);
+  --tw-prose-counters: var(--muted);
+  --tw-prose-bullets: var(--muted);
+  --tw-prose-hr: var(--border);
+  --tw-prose-quotes: var(--muted);
+  --tw-prose-quote-borders: var(--border);
+  --tw-prose-captions: var(--muted);
+  --tw-prose-code: var(--fg);
+  --tw-prose-pre-code: var(--fg);
+  --tw-prose-pre-bg: var(--bg-subtle);
+  --tw-prose-th-borders: var(--border);
+  --tw-prose-td-borders: var(--border);
 }
 
-h1,
-h2,
-h3 {
-  line-height: 1.25;
+/* Inline code as a subtle pill rather than the plugin's backticks. */
+.prose :where(code):not(:where(pre *)) {
+  @apply bg-bg-subtle border border-border rounded px-[0.3em] py-[0.1em] font-normal;
+}
+.prose :where(code):not(:where(pre *))::before,
+.prose :where(code):not(:where(pre *))::after {
+  content: none;
+}
+.prose :where(pre) {
+  @apply border border-border;
+}
+.prose :where(h2, h3) {
+  scroll-margin-top: 1rem;
 }
 
-a {
-  color: var(--accent);
-  text-underline-offset: 0.2em;
+/* Code blocks: Shiki dual themes (see astro.config.mjs). */
+:root[data-theme='dark'] .astro-code,
+:root[data-theme='dark'] .astro-code span {
+  color: var(--shiki-dark) !important;
+  background-color: var(--shiki-dark-bg) !important;
 }
 
-code {
-  font-family: var(--font-mono);
-  font-size: 0.9em;
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme]) .astro-code,
+  :root:not([data-theme]) .astro-code span {
+    color: var(--shiki-dark) !important;
+    background-color: var(--shiki-dark-bg) !important;
+  }
 }
 
-.muted {
-  color: var(--muted);
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    transition: none !important;
+    animation: none !important;
+  }
 }
