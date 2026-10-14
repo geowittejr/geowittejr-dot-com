@@ -1,0 +1,40 @@
+---
+import { LINKS, SITE_TITLE } from '../consts';
+
+const year = new Date().getFullYear();
+---
+
+<footer>
+  <div>
+    <span class="muted">© {year} {SITE_TITLE}</span>
+    <ul>
+      <li><a href={LINKS.resume}>Resume</a></li>
+      <li><a href={LINKS.github}>GitHub</a></li>
+      {LINKS.linkedin && <li><a href={LINKS.linkedin}>LinkedIn</a></li>}
+      {LINKS.email && <li><a href={`mailto:${LINKS.email}`}>Email</a></li>}
+    </ul>
+  </div>
+</footer>
+
+<style>
+  footer {
+    border-top: 1px solid var(--border);
+    font-size: 0.9rem;
+  }
+  div {
+    max-width: var(--max-width);
+    margin: 0 auto;
+    padding: 1.5rem 1rem;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem 1.5rem;
+    justify-content: space-between;
+  }
+  ul {
+    display: flex;
+    gap: 1rem;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+</style>
