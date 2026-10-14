@@ -5,9 +5,9 @@ import mdx from '@astrojs/mdx';
 import sitemap from '@astrojs/sitemap';
 import tailwindcss from '@tailwindcss/vite';
 
-// Flip to true once geowittejr.com DNS points at GitHub Pages (see docs/project-plan.md §7).
-// Until then the site is served from the default project URL under a base path.
-const CUSTOM_DOMAIN = false;
+// Served from geowittejr.com (see docs/project-plan.md §7). Set to false to fall back to
+// the default project URL under a base path.
+const CUSTOM_DOMAIN = true;
 
 // https://astro.build/config
 export default defineConfig({

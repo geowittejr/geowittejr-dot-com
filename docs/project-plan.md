@@ -200,7 +200,7 @@ Each project body follows this outline. Senior hiring cares more about judgment 
 - **Workflow:** `.github/workflows/deploy.yml` uses `withastro/action` to build, then `actions/deploy-pages` to deploy. It runs on push to `main` and on manual dispatch.
 - **`astro.config.mjs`:** a `CUSTOM_DOMAIN` flag picks `site` and `base`:
   ```js
-  const CUSTOM_DOMAIN = false;
+  const CUSTOM_DOMAIN = true;
 
   export default defineConfig({
     site: CUSTOM_DOMAIN ? 'https://geowittejr.com' : 'https://geowittejr.github.io',
@@ -209,7 +209,7 @@ Each project body follows this outline. Senior hiring cares more about judgment 
     vite: { plugins: [tailwindcss()] },
   });
   ```
-- **Current URL:** `https://geowittejr.github.io/geowittejr-dot-com/`. All internal links use `url()` so the base path is applied everywhere.
+- **Current URL:** `https://geowittejr.com/` (previously `https://geowittejr.github.io/geowittejr-dot-com/`). All internal links use `url()` so the base path is applied everywhere.
 - **Switching to the custom domain** (`geowittejr.com` is owned):
   1. DNS: A/AAAA records (or ALIAS) for the apex pointing at GitHub Pages, plus a `www` CNAME to `geowittejr.github.io`.
   2. Repo Settings → Pages → Custom domain: `geowittejr.com`; enforce HTTPS. (`public/CNAME` already contains it.)
@@ -222,7 +222,7 @@ Each project body follows this outline. Senior hiring cares more about judgment 
   - [x] Astro project, integrations, strict TS, content schemas, placeholder pages, deploy workflow, `CNAME`
   - [x] Merge to `main`
   - [ ] Set Pages source to GitHub Actions; confirm the site is live at the default GitHub URL
-  - [ ] Later: switch to `geowittejr.com` (steps in [§7](#7-deployment))
+  - [x] Switch to `geowittejr.com` (steps in [§7](#7-deployment))
 - [x] **M2: Layout & design.** BaseLayout, Header and Footer, global styles, dark mode, SEO meta.
   - Dark mode: `data-theme` on `<html>`, set pre-paint by an inline script (stored choice, else OS); `ThemeToggle.tsx` island flips and persists it; no-JS falls back to `prefers-color-scheme`. Shiki dual themes follow it.
   - `BaseLayout` props: `title`, `description`, `image` (OG/Twitter; default image lands in M5), `type` + `publishedTime`/`modifiedTime` for posts, `noindex`.
