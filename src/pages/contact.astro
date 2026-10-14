@@ -1,0 +1,19 @@
+---
+import ProseLayout from '../layouts/ProseLayout.astro';
+import ContactForm from '../components/ContactForm';
+import { LINKS, TURNSTILE_SITE_KEY } from '../consts';
+---
+
+<ProseLayout title="Contact" description="Send George Witte Jr. a message.">
+  <p>
+    Have a role, a project, or a question? Send me a message. You can also find me on <a
+      href={LINKS.linkedin}>LinkedIn</a
+    >.
+  </p>
+  <div class="not-prose">
+    <noscript>
+      <p class="text-muted">The contact form needs JavaScript for its CAPTCHA. Reach me on LinkedIn instead.</p>
+    </noscript>
+    <ContactForm siteKey={TURNSTILE_SITE_KEY} client:visible />
+  </div>
+</ProseLayout>
