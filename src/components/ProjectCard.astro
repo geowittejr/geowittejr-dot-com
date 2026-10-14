@@ -1,0 +1,24 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import TagList from './TagList.astro';
+import { url } from '../lib/url';
+
+interface Props {
+  project: CollectionEntry<'projects'>;
+}
+
+const { project } = Astro.props;
+const { title, summary, role, year, stack, draft } = project.data;
+---
+
+<article class="relative rounded-md border border-border p-4 transition-colors hover:border-accent">
+  <h3 class="m-0 text-lg font-semibold">
+    <a href={url(`/projects/${project.id}`)} class="text-fg no-underline after:absolute after:inset-0">
+      {title}
+    </a>
+    {draft && <span class="ml-2 text-xs font-normal text-muted uppercase">Draft</span>}
+  </h3>
+  <p class="mt-0.5 mb-2 text-sm text-muted">{role} · {year}</p>
+  <p class="mt-0 mb-3">{summary}</p>
+  <TagList tags={stack} label="Stack" />
+</article>

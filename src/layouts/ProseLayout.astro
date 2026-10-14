@@ -16,33 +16,8 @@ const description = descriptionProp ?? frontmatter?.description;
 ---
 
 <BaseLayout title={title} description={description} {...rest}>
-  <article class="prose">
+  <article class="prose max-w-none">
     {title && <h1>{title}</h1>}
     <slot />
   </article>
 </BaseLayout>
-
-<style>
-  .prose :global(h2),
-  .prose :global(h3) {
-    scroll-margin-top: 1rem;
-  }
-  .prose :global(ul),
-  .prose :global(ol) {
-    padding-left: 1.25rem;
-  }
-  .prose :global(li + li) {
-    margin-top: 0.25rem;
-  }
-  .prose :global(img) {
-    border-radius: var(--radius);
-  }
-  .prose :global(figure) {
-    margin: 2rem 0;
-  }
-  .prose :global(figcaption) {
-    color: var(--muted);
-    font-size: 0.9rem;
-    margin-top: 0.5rem;
-  }
-</style>

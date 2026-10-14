@@ -1,7 +1,25 @@
 ---
-import ProseLayout from '../../layouts/ProseLayout.astro';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import ProjectCard from '../../components/ProjectCard.astro';
+import { getProjects } from '../../lib/content';
+
+const projects = await getProjects();
 ---
 
-<ProseLayout title="Projects" description="Projects and case studies.">
-  <p class="muted">Case studies coming soon.</p>
-</ProseLayout>
+<BaseLayout title="Projects" description="Projects and case studies.">
+  <h1 class="mb-2 text-3xl font-bold">Projects</h1>
+  <p class="mt-0 mb-8 text-muted">Case studies: the problem, my role, the decisions, and the outcome.</p>
+  {
+    projects.length > 0 ? (
+      <ul class="m-0 grid list-none gap-4 p-0">
+        {projects.map((project) => (
+          <li>
+            <ProjectCard project={project} />
+          </li>
+        ))}
+      </ul>
+    ) : (
+      <p class="text-muted">Case studies coming soon.</p>
+    )
+  }
+</BaseLayout>

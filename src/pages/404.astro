@@ -1,7 +1,8 @@
 ---
 import ProseLayout from '../layouts/ProseLayout.astro';
+import { url } from '../lib/url';
 ---
 
 <ProseLayout title="Page not found" noindex>
-  <p>That page doesn't exist. <a href="/">Go home</a>.</p>
+  <p>That page doesn't exist. <a href={url('/')}>Go home</a>.</p>
 </ProseLayout>

@@ -1,85 +1,40 @@
 ---
 import ThemeToggle from './ThemeToggle';
 import { LINKS, NAV, SITE_TITLE } from '../consts';
+import { isCurrent, url } from '../lib/url';
 
 const path = Astro.url.pathname;
+const link = 'text-fg no-underline hover:text-accent';
 ---
 
-<header>
-  <nav aria-label="Main">
-    <a href="/" class="home">{SITE_TITLE}</a>
-    <ul>
+<header class="border-b border-border">
+  <nav
+    aria-label="Main"
+    class="mx-auto flex max-w-2xl flex-wrap items-center justify-between gap-x-6 gap-y-2 p-4"
+  >
+    <a href={url('/')} class:list={[link, 'font-semibold']}>{SITE_TITLE}</a>
+    <ul class="m-0 flex list-none flex-wrap items-center gap-x-5 gap-y-2 p-0">
       {
-        NAV.map(({ href, label }) => (
-          <li>
-            <a href={href} aria-current={path.startsWith(href) ? 'page' : undefined}>
-              {label}
-            </a>
-          </li>
-        ))
+        NAV.map(({ href, label }) => {
+          const target = url(href);
+          return (
+            <li>
+              <a
+                href={target}
+                aria-current={isCurrent(target, path) ? 'page' : undefined}
+                class:list={[
+                  link,
+                  'aria-[current=page]:text-accent aria-[current=page]:underline aria-[current=page]:decoration-2',
+                ]}
+              >
+                {label}
+              </a>
+            </li>
+          );
+        })
       }
-      <li><a href={LINKS.resume} class="resume">Resume</a></li>
+      <li><a href={url(LINKS.resume)} class="font-medium no-underline">Resume</a></li>
       <li><ThemeToggle client:visible /></li>
     </ul>
   </nav>
 </header>
-
-<style>
-  header {
-    border-bottom: 1px solid var(--border);
-  }
-  nav {
-    max-width: var(--max-width);
-    margin: 0 auto;
-    padding: 1rem;
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.5rem 1.5rem;
-    align-items: center;
-    justify-content: space-between;
-  }
-  ul {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 0.5rem 1.25rem;
-    list-style: none;
-    margin: 0;
-    padding: 0;
-  }
-  a {
-    color: var(--fg);
-    text-decoration: none;
-  }
-  a:hover,
-  a[aria-current='page'] {
-    color: var(--accent);
-  }
-  a[aria-current='page'] {
-    text-decoration: underline;
-    text-decoration-thickness: 2px;
-  }
-  .home {
-    font-weight: 600;
-  }
-  .resume {
-    color: var(--accent);
-    font-weight: 500;
-  }
-  /* :global because the button is rendered by a React island */
-  ul :global(.theme-toggle) {
-    display: grid;
-    place-items: center;
-    width: 2rem;
-    height: 2rem;
-    padding: 0;
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    background: transparent;
-    color: var(--fg);
-    cursor: pointer;
-  }
-  ul :global(.theme-toggle:hover) {
-    color: var(--accent);
-  }
-</style>

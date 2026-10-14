@@ -33,7 +33,7 @@ export default function ThemeToggle() {
   return (
     <button
       type="button"
-      className="theme-toggle"
+      className="grid size-8 cursor-pointer place-items-center rounded-md border border-border bg-transparent p-0 text-fg hover:text-accent"
       onClick={toggle}
       aria-label={isDark ? 'Switch to light theme' : 'Switch to dark theme'}
       title={isDark ? 'Switch to light theme' : 'Switch to dark theme'}

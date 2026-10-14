@@ -1,7 +1,25 @@
 ---
-import ProseLayout from '../../layouts/ProseLayout.astro';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import PostCard from '../../components/PostCard.astro';
+import { getPosts } from '../../lib/content';
+
+const posts = await getPosts();
 ---
 
-<ProseLayout title="Writing" description="Thoughts on software engineering and other subjects.">
-  <p class="muted">Posts coming soon.</p>
-</ProseLayout>
+<BaseLayout title="Writing" description="Thoughts on software engineering and other subjects.">
+  <h1 class="mb-2 text-3xl font-bold">Writing</h1>
+  <p class="mt-0 mb-8 text-muted">Thoughts on software engineering and other subjects.</p>
+  {
+    posts.length > 0 ? (
+      <ul class="m-0 grid list-none gap-6 p-0">
+        {posts.map((post) => (
+          <li>
+            <PostCard post={post} />
+          </li>
+        ))}
+      </ul>
+    ) : (
+      <p class="text-muted">Posts coming soon.</p>
+    )
+  }
+</BaseLayout>

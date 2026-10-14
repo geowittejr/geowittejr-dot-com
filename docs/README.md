@@ -1,6 +1,6 @@
 # Design Docs
 
-Design docs for geowittejr.com. Top-level decisions live in [`../project-plan.md`](../project-plan.md). Docs here go deeper on a single feature or change.
+Design docs for geowittejr.com. Top-level decisions live in [`project-plan.md`](project-plan.md). Docs here go deeper on a single feature or change.
 
 > This folder is **not** published to the site. Astro only builds `src/` and `public/`.
 

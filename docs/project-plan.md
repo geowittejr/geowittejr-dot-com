@@ -2,7 +2,7 @@
 
 > **Status:** Active · **Owner:** George Witte Jr. · **Last updated:** 2026-10-14
 >
-> This is the source of truth for how the site is built. Change this file when a decision changes, and log the change in the [Decision Log](#decision-log). Deeper designs for individual features go in [`docs/`](docs/README.md).
+> This is the source of truth for how the site is built. Change this file when a decision changes, and log the change in the [Decision Log](#decision-log). Deeper designs for individual features go in [`docs/`](README.md).
 
 ## 1. Goal
 
@@ -31,11 +31,13 @@ A clean, simple portfolio site for a senior software engineer, aimed at prospect
 | Content       | Markdown / MDX via **content collections**  | Frontmatter is type-checked with Zod                           |
 | Interactivity | React (`@astrojs/react`), islands only      | Use `client:*` directives only where interactivity is needed   |
 | Language      | TypeScript (strict)                         |                                                                |
-| Styling       | Plain CSS (`src/styles/global.css`) + scoped `<style>` in `.astro` | Keep it simple; revisit only if it becomes painful |
+| Styling       | [Tailwind CSS](https://tailwindcss.com) v4 (`@tailwindcss/vite`) + `@tailwindcss/typography` | Theme tokens in `src/styles/global.css`; utilities in markup |
 | Integrations  | `@astrojs/react`, `@astrojs/mdx`, `@astrojs/sitemap`, `@astrojs/rss` |                                       |
+| Package mgr   | npm                                         | Lockfile committed                                             |
+| Analytics     | None                                        | Revisit only if there's a question analytics would answer      |
 | Hosting       | GitHub Pages                                | Repo: `geowittejr/geowittejr-dot-com`                          |
 | Deploy        | GitHub Actions (`withastro/action`)         | On every push to `main`                                        |
-| Domain        | `geowittejr.com` (custom domain)            | `public/CNAME`; see [Open Questions](#9-open-questions)        |
+| Domain        | `geowittejr.com` (owned); default GitHub URL for now | `https://geowittejr.github.io/geowittejr-dot-com/` until DNS is set; see [§7](#7-deployment) |
 
 ## 3. Repository Structure
 
@@ -47,6 +49,7 @@ geowittejr-dot-com/
 │   └── workflows/
 │       └── deploy.yml          # build + deploy to GitHub Pages
 ├── docs/                       # design docs (not published to the site)
+│   ├── project-plan.md         # ← this file
 │   ├── README.md               # index of design docs + conventions
 │   └── _template.md            # copy this to start a new design doc
 ├── public/                     # served as-is, not processed
@@ -64,6 +67,7 @@ geowittejr-dot-com/
 │   │   ├── ProjectCard.astro
 │   │   ├── PostCard.astro
 │   │   ├── TagList.astro
+│   │   ├── FormattedDate.astro
 │   │   └── ThemeToggle.tsx     # React only where interactive (island)
 │   ├── content/                # all markdown content lives here
 │   │   ├── projects/
@@ -73,9 +77,12 @@ geowittejr-dot-com/
 │   ├── layouts/
 │   │   ├── BaseLayout.astro    # <head>, SEO meta, header, footer
 │   │   └── ProseLayout.astro   # article styling for markdown pages
+│   ├── lib/
+│   │   ├── content.ts          # getProjects/getPosts: draft filtering + sorting
+│   │   └── url.ts              # url(): prefixes internal links with the base path
 │   ├── pages/                  # file-based routing
 │   │   ├── index.astro         # hero, featured projects, recent writing
-│   │   ├── about.md            # bio, experience, skills
+│   │   ├── about.mdx           # bio, experience, skills
 │   │   ├── projects/
 │   │   │   ├── index.astro
 │   │   │   └── [slug].astro
@@ -85,14 +92,13 @@ geowittejr-dot-com/
 │   │   ├── rss.xml.ts
 │   │   └── 404.astro
 │   ├── styles/
-│   │   └── global.css
+│   │   └── global.css          # Tailwind entry + theme tokens
 │   ├── consts.ts               # site name, email, social links
 │   └── content.config.ts       # content collection schemas
 ├── .gitignore
 ├── astro.config.mjs
 ├── LICENSE
 ├── package.json
-├── project-plan.md             # ← this file
 ├── README.md                   # short: what this is, how to run it
 └── tsconfig.json
 ```
@@ -104,13 +110,15 @@ geowittejr-dot-com/
 - **Use `.md` by default and `.mdx` only when a file embeds components.**
 - **Images:** use `src/assets/` for anything rendered with `<Image />` (it gets optimized) and `public/` only for files that need a fixed URL (resume, favicon, OG image, CNAME).
 - **`docs/` is for planning, not for the site.** Astro never builds it.
+- **Internal links go through `url()`** from `src/lib/url.ts` (in `.astro`, `.ts`, and `.mdx`), never a bare `/path`, so they work under the current base path. In plain `.md` content, avoid root-relative links to site pages until the custom domain is live (use `.mdx` if needed).
+- **Style with Tailwind utilities in markup.** Colors use the theme tokens (`bg-bg`, `text-fg`, `text-muted`, `text-accent`, `border-border`, `bg-bg-subtle`), which already switch with dark mode. Markdown bodies use `prose max-w-none`.
 
 ## 4. Site Map & Routes
 
 | Route               | Source                              | Purpose                                                    |
 | ------------------- | ----------------------------------- | ---------------------------------------------------------- |
 | `/`                 | `pages/index.astro`                 | Short intro, 3–4 featured projects, recent writing, contact |
-| `/about`            | `pages/about.md`                    | Bio, experience summary, skills, resume link               |
+| `/about`            | `pages/about.mdx`                   | Bio, experience summary, skills, resume link               |
 | `/projects`         | `pages/projects/index.astro`        | All non-draft projects, newest first                       |
 | `/projects/[slug]`  | `pages/projects/[slug].astro`       | Project case study                                         |
 | `/writing`          | `pages/writing/index.astro`         | All non-draft posts, newest first                          |
@@ -185,41 +193,46 @@ Each project body follows this outline. Senior hiring cares more about judgment 
 
 - **Pages source:** set to **GitHub Actions** in repo Settings → Pages. Do **not** use "Deploy from branch → `/docs`", because `docs/` here holds design docs, not the built site.
 - **Workflow:** `.github/workflows/deploy.yml` uses `withastro/action` to build, then `actions/deploy-pages` to deploy. It runs on push to `main` and on manual dispatch.
-- **`astro.config.mjs`:**
+- **`astro.config.mjs`:** a `CUSTOM_DOMAIN` flag picks `site` and `base`:
   ```js
-  import { defineConfig } from 'astro/config';
-  import react from '@astrojs/react';
-  import mdx from '@astrojs/mdx';
-  import sitemap from '@astrojs/sitemap';
+  const CUSTOM_DOMAIN = false;
 
   export default defineConfig({
-    site: 'https://geowittejr.com',
-    // no `base` needed with a custom domain
+    site: CUSTOM_DOMAIN ? 'https://geowittejr.com' : 'https://geowittejr.github.io',
+    base: CUSTOM_DOMAIN ? '/' : '/geowittejr-dot-com',
     integrations: [react(), mdx(), sitemap()],
+    vite: { plugins: [tailwindcss()] },
   });
   ```
-- **Custom domain:** `public/CNAME` contains `geowittejr.com`. DNS has A/AAAA records (or ALIAS) for the apex pointing at GitHub Pages, plus a `www` CNAME to `geowittejr.github.io`. Enforce HTTPS in repo settings.
+- **Current URL:** `https://geowittejr.github.io/geowittejr-dot-com/`. All internal links use `url()` so the base path is applied everywhere.
+- **Switching to the custom domain** (`geowittejr.com` is owned):
+  1. DNS: A/AAAA records (or ALIAS) for the apex pointing at GitHub Pages, plus a `www` CNAME to `geowittejr.github.io`.
+  2. Repo Settings → Pages → Custom domain: `geowittejr.com`; enforce HTTPS. (`public/CNAME` already contains it.)
+  3. Set `CUSTOM_DOMAIN = true` in `astro.config.mjs` and push.
 - **Drafts:** `draft: true` entries are filtered out of all listings and routes in production builds.
 
 ## 8. Milestones
 
-- [ ] **M1: Scaffold.** Astro + TS + React/MDX/sitemap integrations, folder structure above, deploy workflow, and a "hello world" live on the domain.
+- [ ] **M1: Scaffold.** Astro + TS + React/MDX/sitemap integrations, folder structure above, deploy workflow, and a "hello world" live.
   - [x] Astro project, integrations, strict TS, content schemas, placeholder pages, deploy workflow, `CNAME`
-  - [ ] Merge to `main`, set Pages source to GitHub Actions, configure DNS, enforce HTTPS
+  - [x] Merge to `main`
+  - [ ] Set Pages source to GitHub Actions; confirm the site is live at the default GitHub URL
+  - [ ] Later: switch to `geowittejr.com` (steps in [§7](#7-deployment))
 - [x] **M2: Layout & design.** BaseLayout, Header and Footer, global styles, dark mode, SEO meta.
   - Dark mode: `data-theme` on `<html>`, set pre-paint by an inline script (stored choice, else OS); `ThemeToggle.tsx` island flips and persists it; no-JS falls back to `prefers-color-scheme`. Shiki dual themes follow it.
   - `BaseLayout` props: `title`, `description`, `image` (OG/Twitter; default image lands in M5), `type` + `publishedTime`/`modifiedTime` for posts, `noindex`.
   - Resume link in the header; skip link, focus rings, prose/code/table styles.
-- [ ] **M3: Content collections.** Schemas, project and writing index and detail pages, RSS.
+- [x] **M3: Content collections.** Schemas, project and writing index and detail pages, RSS.
+  - `src/lib/content.ts`: `getProjects()` (year desc, then title) and `getPosts()` (newest first). Drafts show in dev (with a "Draft" label) and are excluded from production builds, including routes and RSS.
+  - Pages: `/projects`, `/projects/[slug]` (role, year, stack, links, optional cover), `/writing`, `/writing/[slug]` (dates, tags, article meta), `/rss.xml`. Home shows up to 4 featured projects and the 3 latest posts.
+  - Components: `ProjectCard`, `PostCard`, `TagList`, `FormattedDate`. RSS is linked in `<head>` and the footer.
+  - Also: migrated styles to Tailwind v4 and added base-path support (`url()`) for the default GitHub URL.
 - [ ] **M4: Real content.** About page, resume PDF, 3–4 project case studies, 1–2 posts.
-- [ ] **M5: Polish.** Lighthouse/a11y pass, OG image, 404 page, analytics decision.
+- [ ] **M5: Polish.** Lighthouse/a11y pass, OG image, 404 page.
 
 ## 9. Open Questions
 
-- [ ] **Domain:** confirm `geowittejr.com` is owned and will be the custom domain. If not, the site lives at `https://geowittejr.github.io/geowittejr-dot-com/` and `astro.config.mjs` needs `base: '/geowittejr-dot-com'`, with every internal link using `import.meta.env.BASE_URL`.
-- [ ] **Analytics:** none, or privacy-friendly (Plausible, Cloudflare Web Analytics, GoatCounter)?
-- [ ] **Styling:** stay with plain CSS, or adopt Tailwind? (Default: plain CSS.)
-- [ ] **Package manager:** npm or pnpm? (Default: npm.)
+None right now. Resolved questions are recorded in the [Decision Log](#decision-log).
 
 ## Decision Log
 
@@ -227,6 +240,11 @@ Newest first. Each entry records what was decided and why, so the reasoning surv
 
 | Date       | Decision                                                                 | Rationale                                                          |
 | ---------- | ------------------------------------------------------------------------ | ------------------------------------------------------------------ |
+| 2026-10-14 | Serve from the default GitHub URL for now, behind a `CUSTOM_DOMAIN` flag | `geowittejr.com` is owned but DNS isn't set yet; one-line switch later |
+| 2026-10-14 | Internal links via `url()` helper; `about` is `.mdx` so it can use it    | Base path must apply everywhere; Astro 7's Markdown processor makes a rehype link plugin extra setup |
+| 2026-10-14 | Tailwind CSS v4 + typography plugin, colors as theme-token CSS variables | Faster iteration in markup; tokens keep the existing dark-mode approach |
+| 2026-10-14 | No analytics for now                                                     | Nothing to measure yet; zero third-party JS                        |
+| 2026-10-14 | npm as package manager                                                   | Default, already in use                                            |
 | 2026-10-14 | Theme via `data-theme` + inline pre-paint script; toggle is a React island | No flash of wrong theme; user choice persists; works without JS    |
 | 2026-10-14 | Astro 7 + Zod 4 (`import { z } from 'astro/zod'`), Node 22+              | Current stable at scaffold time; old `astro:content` `z` is deprecated |
 | 2026-10-14 | Deploy via GitHub Actions, not "deploy from branch"                      | Standard for Astro; frees `docs/` for design docs                  |

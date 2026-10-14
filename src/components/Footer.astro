@@ -1,40 +1,19 @@
 ---
 import { LINKS, SITE_TITLE } from '../consts';
+import { url } from '../lib/url';
 
 const year = new Date().getFullYear();
 ---
 
-<footer>
-  <div>
-    <span class="muted">© {year} {SITE_TITLE}</span>
-    <ul>
-      <li><a href={LINKS.resume}>Resume</a></li>
+<footer class="border-t border-border text-sm">
+  <div class="mx-auto flex max-w-2xl flex-wrap justify-between gap-x-6 gap-y-2 px-4 py-6">
+    <span class="text-muted">© {year} {SITE_TITLE}</span>
+    <ul class="m-0 flex list-none gap-4 p-0">
+      <li><a href={url(LINKS.resume)}>Resume</a></li>
+      <li><a href={url('/rss.xml')}>RSS</a></li>
       <li><a href={LINKS.github}>GitHub</a></li>
       {LINKS.linkedin && <li><a href={LINKS.linkedin}>LinkedIn</a></li>}
       {LINKS.email && <li><a href={`mailto:${LINKS.email}`}>Email</a></li>}
     </ul>
   </div>
 </footer>
-
-<style>
-  footer {
-    border-top: 1px solid var(--border);
-    font-size: 0.9rem;
-  }
-  div {
-    max-width: var(--max-width);
-    margin: 0 auto;
-    padding: 1.5rem 1rem;
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.5rem 1.5rem;
-    justify-content: space-between;
-  }
-  ul {
-    display: flex;
-    gap: 1rem;
-    list-style: none;
-    margin: 0;
-    padding: 0;
-  }
-</style>
