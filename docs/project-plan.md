@@ -71,9 +71,9 @@ geowittejr-dot-com/
 │   │   └── ThemeToggle.tsx     # React only where interactive (island)
 │   ├── content/                # all markdown content lives here
 │   │   ├── projects/
-│   │   │   └── example-project.md
+│   │   │   └── <slug>.md       # one file per case study
 │   │   └── writing/
-│   │       └── example-post.md
+│   │       └── <slug>.md       # one file per post
 │   ├── layouts/
 │   │   ├── BaseLayout.astro    # <head>, SEO meta, header, footer
 │   │   └── ProseLayout.astro   # article styling for markdown pages
@@ -228,6 +228,10 @@ Each project body follows this outline. Senior hiring cares more about judgment 
   - Components: `ProjectCard`, `PostCard`, `TagList`, `FormattedDate`. RSS is linked in `<head>` and the footer.
   - Also: migrated styles to Tailwind v4 and added base-path support (`url()`) for the default GitHub URL.
 - [ ] **M4: Real content.** About page, resume PDF, 3–4 project case studies, 1–2 posts.
+  - [x] Scaffolds: About page sections (bio, experience, skills, resume) with TODOs; `case-study-1..4.md` (1–3 featured) and `post-1..2.md` as `draft: true` with the case-study / post outline and prompts; example files removed
+  - [ ] Fill in About, `LINKS.linkedin` / `LINKS.email` in `consts.ts`
+  - [ ] Add `public/resume.pdf` (header/footer/About links 404 until then)
+  - [ ] Write case studies and posts, rename files to real slugs, set `draft: false`
 - [ ] **M5: Polish.** Lighthouse/a11y pass, OG image, 404 page.
 
 ## 9. Open Questions
