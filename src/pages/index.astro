@@ -1,0 +1,51 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { LINKS } from '../consts';
+---
+
+<BaseLayout>
+  <section class="hero">
+    <h1>Hi, I'm George.</h1>
+    <p class="lede">
+      I'm a senior software engineer. This site collects the projects I've worked on and my thoughts
+      on building software.
+    </p>
+    <p class="cta">
+      <a href="/about">About me</a>
+      <a href="/projects">Projects</a>
+      <a href={LINKS.resume}>Resume</a>
+    </p>
+  </section>
+
+  <section>
+    <h2>Featured projects</h2>
+    <p class="muted">Coming soon.</p>
+  </section>
+
+  <section>
+    <h2>Recent writing</h2>
+    <p class="muted">Coming soon.</p>
+  </section>
+</BaseLayout>
+
+<style>
+  .hero {
+    padding: 2rem 0 1rem;
+  }
+  .hero h1 {
+    font-size: 2.5rem;
+    margin: 0 0 0.75rem;
+  }
+  .lede {
+    font-size: 1.2rem;
+    color: var(--muted);
+  }
+  .cta {
+    display: flex;
+    gap: 1.25rem;
+    flex-wrap: wrap;
+  }
+  section + section {
+    margin-top: 2.5rem;
+  }
+</style>

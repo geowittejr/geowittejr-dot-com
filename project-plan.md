@@ -27,7 +27,7 @@ A clean, simple portfolio site for a senior software engineer, aimed at prospect
 
 | Concern       | Choice                                      | Notes                                                          |
 | ------------- | ------------------------------------------- | -------------------------------------------------------------- |
-| Framework     | [Astro](https://astro.build) (v5+), static output | Content-focused; ships no JS by default                       |
+| Framework     | [Astro](https://astro.build) (v7), static output | Content-focused; ships no JS by default                       |
 | Content       | Markdown / MDX via **content collections**  | Frontmatter is type-checked with Zod                           |
 | Interactivity | React (`@astrojs/react`), islands only      | Use `client:*` directives only where interactivity is needed   |
 | Language      | TypeScript (strict)                         |                                                                |
@@ -126,8 +126,9 @@ Slugs come from the filename: `src/content/projects/payments-platform.md` become
 Defined in `src/content.config.ts`. Builds fail on invalid frontmatter, and that's intended.
 
 ```ts
-import { defineCollection, z } from 'astro:content';
+import { defineCollection } from 'astro:content';
 import { glob } from 'astro/loaders';
+import { z } from 'astro/zod';   // Zod 4; `z` from 'astro:content' is deprecated
 
 const projects = defineCollection({
   loader: glob({ pattern: '**/*.{md,mdx}', base: './src/content/projects' }),
@@ -139,8 +140,8 @@ const projects = defineCollection({
     year: z.number(),
     cover: image().optional(),
     links: z.object({
-      repo: z.string().url(),
-      live: z.string().url(),
+      repo: z.url(),
+      live: z.url(),
     }).partial().optional(),
     featured: z.boolean().default(false), // shown on home page
     draft: z.boolean().default(false),    // excluded from production build
@@ -203,6 +204,8 @@ Each project body follows this outline. Senior hiring cares more about judgment 
 ## 8. Milestones
 
 - [ ] **M1: Scaffold.** Astro + TS + React/MDX/sitemap integrations, folder structure above, deploy workflow, and a "hello world" live on the domain.
+  - [x] Astro project, integrations, strict TS, content schemas, placeholder pages, deploy workflow, `CNAME`
+  - [ ] Merge to `main`, set Pages source to GitHub Actions, configure DNS, enforce HTTPS
 - [ ] **M2: Layout & design.** BaseLayout, Header and Footer, global styles, dark mode, SEO meta.
 - [ ] **M3: Content collections.** Schemas, project and writing index and detail pages, RSS.
 - [ ] **M4: Real content.** About page, resume PDF, 3–4 project case studies, 1–2 posts.
@@ -221,6 +224,7 @@ Newest first. Each entry records what was decided and why, so the reasoning surv
 
 | Date       | Decision                                                                 | Rationale                                                          |
 | ---------- | ------------------------------------------------------------------------ | ------------------------------------------------------------------ |
+| 2026-10-14 | Astro 7 + Zod 4 (`import { z } from 'astro/zod'`), Node 22+              | Current stable at scaffold time; old `astro:content` `z` is deprecated |
 | 2026-10-14 | Deploy via GitHub Actions, not "deploy from branch"                      | Standard for Astro; frees `docs/` for design docs                  |
 | 2026-10-14 | Keep design docs in `docs/` with a shared template                       | Planning lives with the code; this plan is the top-level doc       |
 | 2026-10-14 | Name the posts section `writing/`, not `blog/`                           | Reads more senior; fits "thoughts on subjects"                     |
