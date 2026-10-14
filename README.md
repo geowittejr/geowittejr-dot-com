@@ -1,6 +1,6 @@
 # geowittejr.com
 
-Personal portfolio site, built with [Astro](https://astro.build) and [Tailwind CSS](https://tailwindcss.com), deployed to GitHub Pages at <https://geowittejr.github.io/geowittejr-dot-com/> (custom domain `geowittejr.com` coming).
+Personal portfolio site, built with [Astro](https://astro.build) and [Tailwind CSS](https://tailwindcss.com), deployed to GitHub Pages at <https://geowittejr.com/>.
 
 - **Plan and decisions:** [`docs/project-plan.md`](docs/project-plan.md)
 - **Design docs:** [`docs/`](docs/README.md)
