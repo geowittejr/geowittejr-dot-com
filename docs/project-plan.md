@@ -8,19 +8,19 @@
 
 A clean, simple portfolio site for a senior software engineer, aimed at prospective recruiters and hiring managers. It should show:
 
-1. **About**: who I am, my experience, my skills, and my resume.
+1. **About**: who I am, my experience, my skills, and my resume (an online page, not a PDF).
 2. **Projects**: work I've done, written as case studies.
 3. **Writing**: my thoughts on engineering and other subjects.
 
 ### Success criteria
 
-- A recruiter can find my resume, contact info, and best projects within 10 seconds of landing.
+- A recruiter can find my resume, contact form, and best projects within 10 seconds of landing.
 - The site is fast (Lighthouse 95+ in every category) and ships close to zero JavaScript.
 - Adding a project or post means adding one Markdown file. No code changes.
 
 ### Non-goals
 
-- No CMS, database, backend, or comments.
+- No CMS, database, backend, or comments. (The contact form will need a form endpoint once it's wired up.)
 - No heavy client-side framework app. React is only for small interactive islands.
 
 ## 2. Tech Stack
@@ -55,11 +55,12 @@ geowittejr-dot-com/
 ├── public/                     # served as-is, not processed
 │   ├── CNAME                   # custom domain: geowittejr.com
 │   ├── favicon.svg
-│   ├── resume.pdf              # one click from every page
-│   └── og-image.png            # default social share image
+│   └── og-image.png            # default social share image (built by scripts/og-image.mjs)
+├── scripts/
+│   ├── og-image.mjs            # generates public/og-image.png with sharp
+│   └── headshot.png            # source photo for the OG image
 ├── src/
 │   ├── assets/                 # images optimized via astro:assets
-│   │   ├── headshot.jpg
 │   │   └── projects/
 │   ├── components/
 │   │   ├── Header.astro
@@ -68,6 +69,7 @@ geowittejr-dot-com/
 │   │   ├── PostCard.astro
 │   │   ├── TagList.astro
 │   │   ├── FormattedDate.astro
+│   │   ├── ContactForm.tsx     # island: form + Turnstile CAPTCHA
 │   │   └── ThemeToggle.tsx     # React only where interactive (island)
 │   ├── content/                # all markdown content lives here
 │   │   ├── projects/
@@ -83,6 +85,8 @@ geowittejr-dot-com/
 │   ├── pages/                  # file-based routing
 │   │   ├── index.astro         # hero, featured projects, recent writing
 │   │   ├── about.mdx           # bio, experience, skills
+│   │   ├── resume.mdx          # work history (online resume)
+│   │   ├── contact.astro       # contact form
 │   │   ├── projects/
 │   │   │   ├── index.astro
 │   │   │   └── [slug].astro
@@ -93,7 +97,7 @@ geowittejr-dot-com/
 │   │   └── 404.astro
 │   ├── styles/
 │   │   └── global.css          # Tailwind entry + theme tokens
-│   ├── consts.ts               # site name, email, social links
+│   ├── consts.ts               # site name, social links, OG image, Turnstile key
 │   └── content.config.ts       # content collection schemas
 ├── .gitignore
 ├── astro.config.mjs
@@ -108,7 +112,7 @@ geowittejr-dot-com/
 - **Repeating content goes in `src/content/`, one-off pages go in `src/pages/`.** Projects and posts are collections. About, Home, and 404 are pages.
 - **Default to `.astro` components.** Use `.tsx` (React) only when a component needs client-side state or events, and hydrate it with the narrowest directive that works (`client:visible` before `client:load`).
 - **Use `.md` by default and `.mdx` only when a file embeds components.**
-- **Images:** use `src/assets/` for anything rendered with `<Image />` (it gets optimized) and `public/` only for files that need a fixed URL (resume, favicon, OG image, CNAME).
+- **Images:** use `src/assets/` for anything rendered with `<Image />` (it gets optimized) and `public/` only for files that need a fixed URL (favicon, OG image, CNAME).
 - **`docs/` is for planning, not for the site.** Astro never builds it.
 - **Internal links go through `url()`** from `src/lib/url.ts` (in `.astro`, `.ts`, and `.mdx`), never a bare `/path`, so they work under the current base path. In plain `.md` content, avoid root-relative links to site pages until the custom domain is live (use `.mdx` if needed).
 - **Style with Tailwind utilities in markup.** Colors use the theme tokens (`bg-bg`, `text-fg`, `text-muted`, `text-accent`, `border-border`, `bg-bg-subtle`), which already switch with dark mode. Markdown bodies use `prose max-w-none`.
@@ -119,12 +123,13 @@ geowittejr-dot-com/
 | ------------------- | ----------------------------------- | ---------------------------------------------------------- |
 | `/`                 | `pages/index.astro`                 | Short intro, 3–4 featured projects, recent writing, contact |
 | `/about`            | `pages/about.mdx`                   | Bio, experience summary, skills, resume link               |
+| `/resume`           | `pages/resume.mdx`                  | Work history (online resume), linked from header on every page |
+| `/contact`          | `pages/contact.astro`               | Contact form (Name, Email, Message) with Turnstile CAPTCHA |
 | `/projects`         | `pages/projects/index.astro`        | All non-draft projects, newest first                       |
 | `/projects/[slug]`  | `pages/projects/[slug].astro`       | Project case study                                         |
 | `/writing`          | `pages/writing/index.astro`         | All non-draft posts, newest first                          |
 | `/writing/[slug]`   | `pages/writing/[slug].astro`        | Single post                                                |
 | `/rss.xml`          | `pages/rss.xml.ts`                  | RSS feed for writing                                       |
-| `/resume.pdf`       | `public/resume.pdf`                 | Downloadable resume                                        |
 | `/404`              | `pages/404.astro`                   | Not found (GitHub Pages serves `404.html` automatically)    |
 
 Slugs come from the filename: `src/content/projects/payments-platform.md` becomes `/projects/payments-platform`.
@@ -187,7 +192,7 @@ Each project body follows this outline. Senior hiring cares more about judgment 
 - **Fast:** static HTML with minimal JS and optimized images. Performance is part of the pitch.
 - **Accessible:** semantic HTML, good contrast, keyboard navigable, alt text required on every image.
 - **SEO and sharing:** per-page `<title>`, meta description, canonical URL, Open Graph and Twitter tags in `BaseLayout`, plus a sitemap and RSS.
-- **Recruiter-first:** resume and contact links in the header or footer on every page.
+- **Recruiter-first:** resume and contact links in the header or footer on every page. No email address is published; the contact form replaces it.
 
 ## 7. Deployment
 
@@ -227,12 +232,18 @@ Each project body follows this outline. Senior hiring cares more about judgment 
   - Pages: `/projects`, `/projects/[slug]` (role, year, stack, links, optional cover), `/writing`, `/writing/[slug]` (dates, tags, article meta), `/rss.xml`. Home shows up to 4 featured projects and the 3 latest posts.
   - Components: `ProjectCard`, `PostCard`, `TagList`, `FormattedDate`. RSS is linked in `<head>` and the footer.
   - Also: migrated styles to Tailwind v4 and added base-path support (`url()`) for the default GitHub URL.
-- [ ] **M4: Real content.** About page, resume PDF, 3–4 project case studies, 1–2 posts.
-  - [x] Scaffolds: About page sections (bio, experience, skills, resume) with TODOs; `case-study-1..4.md` (1–3 featured) and `post-1..2.md` as `draft: true` with the case-study / post outline and prompts; example files removed
-  - [ ] Fill in About, `LINKS.linkedin` / `LINKS.email` in `consts.ts`
-  - [ ] Add `public/resume.pdf` (header/footer/About links 404 until then)
-  - [ ] Write case studies and posts, rename files to real slugs, set `draft: false`
-- [ ] **M5: Polish.** Lighthouse/a11y pass, OG image, 404 page.
+- [x] **M4: Real content.** About page, online resume, contact form, case studies, posts.
+  - [x] Scaffolds: About page sections, case-study / post outlines
+  - [x] `LINKS.linkedin` set; no public email. `/contact` form (Name, Email, Message) with a Cloudflare Turnstile CAPTCHA (`ContactForm.tsx` island). Submit validates only; not wired to a backend yet. Uses Turnstile's test site key.
+  - [x] Online resume at `/resume` instead of `resume.pdf`; header/footer/About link to it
+  - [x] Placeholder (lorem ipsum) content: About, `/resume`, 2 case studies (`lorem-platform`, `ipsum-pipeline`, both featured), 2 posts (`lorem-ipsum-dolor`, `consectetur-adipiscing`)
+  - [ ] Replace placeholder copy with real content
+  - [ ] Wire the contact form to an endpoint that verifies the Turnstile token; swap in the real site key
+- [x] **M5: Polish.** Lighthouse/a11y pass, OG image, 404 page.
+  - Default OG/Twitter image `public/og-image.png` (1200×630, headshot + name), generated by `node scripts/og-image.mjs`; pages without their own image use it, with `summary_large_image`.
+  - Lighthouse (desktop) on home, About, Resume, Contact, a case study, and a post: 100 in all four categories.
+  - Contact form a11y: labeled fields, `:user-invalid` error styling with text + icon, `aria-invalid` synced, `aria-errormessage`.
+  - 404 links back to the main sections.
 
 ## 9. Open Questions
 
@@ -244,6 +255,9 @@ Newest first. Each entry records what was decided and why, so the reasoning surv
 
 | Date       | Decision                                                                 | Rationale                                                          |
 | ---------- | ------------------------------------------------------------------------ | ------------------------------------------------------------------ |
+| 2026-10-14 | Contact form with Cloudflare Turnstile instead of a public email address | Avoids scraped-email spam; Turnstile is free, privacy-friendly, and needs no puzzle for most users |
+| 2026-10-14 | Online resume page (`/resume`) instead of `resume.pdf`                   | One source of truth, always current, indexable, no PDF to regenerate |
+| 2026-10-14 | OG image generated by a sharp script from a source photo                 | Reproducible; sharp already ships with Astro                       |
 | 2026-10-14 | Serve from the default GitHub URL for now, behind a `CUSTOM_DOMAIN` flag | `geowittejr.com` is owned but DNS isn't set yet; one-line switch later |
 | 2026-10-14 | Internal links via `url()` helper; `about` is `.mdx` so it can use it    | Base path must apply everywhere; Astro 7's Markdown processor makes a rehype link plugin extra setup |
 | 2026-10-14 | Tailwind CSS v4 + typography plugin, colors as theme-token CSS variables | Faster iteration in markup; tokens keep the existing dark-mode approach |

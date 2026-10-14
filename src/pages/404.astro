@@ -3,6 +3,12 @@ import ProseLayout from '../layouts/ProseLayout.astro';
 import { url } from '../lib/url';
 ---
 
-<ProseLayout title="Page not found" noindex>
-  <p>That page doesn't exist. <a href={url('/')}>Go home</a>.</p>
+<ProseLayout title="Page not found" description="That page doesn't exist." noindex>
+  <p>Sorry, that page doesn't exist. It may have moved, or the link may be wrong.</p>
+  <ul>
+    <li><a href={url('/')}>Home</a></li>
+    <li><a href={url('/projects')}>Projects</a></li>
+    <li><a href={url('/writing')}>Writing</a></li>
+    <li><a href={url('/contact')}>Contact</a></li>
+  </ul>
 </ProseLayout>
