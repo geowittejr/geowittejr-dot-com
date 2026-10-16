@@ -273,3 +273,4 @@ Newest first. Each entry records what was decided and why, so the reasoning surv
 | 2026-10-14 | Default to `.astro`; React only for interactive islands                  | Zero JS by default means a fast site, and speed is part of the pitch |
 | 2026-10-14 | Content collections with Zod schemas for projects and writing            | Type-safe frontmatter; adding content is a Markdown file           |
 | 2026-10-14 | Astro static site + Markdown/MDX + React on GitHub Pages                 | Content-first, simple, free hosting                                |
+
