@@ -23,6 +23,8 @@
   --muted: #5f6368;
   --accent: #2557d6;
   --border: #e5e7eb;
+  /* Fill behind the transparent headshot (public/geowittejr.png). */
+  --headshot-bg: #dbe4f7;
   color-scheme: light;
 }
 
@@ -33,6 +35,7 @@
   --muted: #9aa0a6;
   --accent: #7aa2ff;
   --border: #2a2c30;
+  --headshot-bg: #a9bde6;
   color-scheme: dark;
 }
 
@@ -44,6 +47,7 @@
     --muted: #9aa0a6;
     --accent: #7aa2ff;
     --border: #2a2c30;
+    --headshot-bg: #a9bde6;
     color-scheme: dark;
   }
 }

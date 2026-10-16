@@ -1,6 +1,8 @@
-// Builds the default social share image (public/og-image.png, 1200×630) from scripts/headshot.png.
-// Run: node scripts/og-image.mjs
+// Builds the default social share image (public/og-image.png, 1200×630) from public/geowittejr.png.
+// Colors come from the dark theme tokens in src/styles/global.css, including --headshot-bg, the fill
+// behind the transparent headshot. Change them there and rerun: node scripts/og-image.mjs
 import sharp from 'sharp';
+import { readFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 
 const W = 1200;
@@ -9,21 +11,32 @@ const PHOTO = 380;
 const PHOTO_X = 90;
 const PHOTO_Y = (H - PHOTO) / 2;
 
-const src = fileURLToPath(new URL('./headshot.png', import.meta.url));
+const src = fileURLToPath(new URL('../public/geowittejr.png', import.meta.url));
+const css = fileURLToPath(new URL('../src/styles/global.css', import.meta.url));
 const out = fileURLToPath(new URL('../public/og-image.png', import.meta.url));
 
-// Theme tokens from src/styles/global.css (dark).
-const bg = '#111214';
-const fg = '#e8e8e8';
-const muted = '#9aa0a6';
-const accent = '#7aa2ff';
+/** Reads the `--name: value;` custom properties declared in the first rule for `selector`. */
+function tokens(source, selector) {
+  const start = source.indexOf(`${selector} {`);
+  if (start === -1) throw new Error(`No "${selector}" rule in ${css}`);
+  const body = source.slice(start, source.indexOf('}', start));
+  return Object.fromEntries([...body.matchAll(/--([\w-]+):\s*([^;]+);/g)].map(([, k, v]) => [k, v.trim()]));
+}
 
-const circle = Buffer.from(
-  `<svg width="${PHOTO}" height="${PHOTO}"><circle cx="${PHOTO / 2}" cy="${PHOTO / 2}" r="${PHOTO / 2}"/></svg>`,
+const { bg, fg, muted, accent, 'headshot-bg': headshotBg } = tokens(
+  await readFile(css, 'utf8'),
+  ":root[data-theme='dark']",
 );
-const photo = await sharp(src)
-  .resize(PHOTO, PHOTO)
-  .composite([{ input: circle, blend: 'dest-in' }])
+
+const r = PHOTO / 2;
+const disc = Buffer.from(
+  `<svg width="${PHOTO}" height="${PHOTO}"><circle cx="${r}" cy="${r}" r="${r}" fill="${headshotBg}"/></svg>`,
+);
+const mask = Buffer.from(`<svg width="${PHOTO}" height="${PHOTO}"><circle cx="${r}" cy="${r}" r="${r}"/></svg>`);
+const face = await sharp(src).resize(PHOTO, PHOTO).png().toBuffer();
+// The headshot is transparent, so lay it over a filled disc, then clip both to a circle.
+const photo = await sharp(disc)
+  .composite([{ input: face }, { input: mask, blend: 'dest-in' }])
   .png()
   .toBuffer();
 
@@ -32,7 +45,7 @@ const font = `font-family="Segoe UI, Helvetica, Arial, sans-serif"`;
 const overlay = Buffer.from(`
 <svg width="${W}" height="${H}" xmlns="http://www.w3.org/2000/svg">
   <rect x="0" y="${H - 12}" width="${W}" height="12" fill="${accent}"/>
-  <circle cx="${PHOTO_X + PHOTO / 2}" cy="${H / 2}" r="${PHOTO / 2 + 6}" fill="none" stroke="${accent}" stroke-width="4"/>
+  <circle cx="${PHOTO_X + r}" cy="${H / 2}" r="${r + 6}" fill="none" stroke="${accent}" stroke-width="4"/>
   <text x="${textX}" y="270" ${font} font-size="72" font-weight="700" fill="${fg}">George Witte Jr.</text>
   <text x="${textX}" y="340" ${font} font-size="40" fill="${muted}">Senior Software Engineer</text>
   <text x="${textX}" y="420" ${font} font-size="32" font-weight="600" fill="${accent}">geowittejr.com</text>
