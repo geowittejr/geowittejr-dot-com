@@ -33,7 +33,10 @@ const disc = Buffer.from(
   `<svg width="${PHOTO}" height="${PHOTO}"><circle cx="${r}" cy="${r}" r="${r}" fill="${headshotBg}"/></svg>`,
 );
 const mask = Buffer.from(`<svg width="${PHOTO}" height="${PHOTO}"><circle cx="${r}" cy="${r}" r="${r}"/></svg>`);
-const face = await sharp(src).resize(PHOTO, PHOTO).png().toBuffer();
+// Square crop of the 1000×1000 source that zooms in on the head (top at y≈129, chin at y≈790, centered at
+// x≈500): half the original space above the head and below the chin.
+const CROP = { left: 85, top: 65, width: 830, height: 830 };
+const face = await sharp(src).extract(CROP).resize(PHOTO, PHOTO).png().toBuffer();
 // The headshot is transparent, so lay it over a filled disc, then clip both to a circle.
 const photo = await sharp(disc)
   .composite([{ input: face }, { input: mask, blend: 'dest-in' }])
