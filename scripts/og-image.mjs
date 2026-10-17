@@ -36,8 +36,8 @@ const mask = Buffer.from(`<svg width="${PHOTO}" height="${PHOTO}"><circle cx="${
 // Framing of the headshot inside the circle. The crop is always square, so the aspect ratio can't drift.
 // ZOOM: 1 shows the whole photo; 1.25 shows 80% of it. CENTER: the point of the photo (0–1 across, 0–1 down)
 // that lands in the middle of the circle; raise y to move the photo up and show more shirt.
-const ZOOM = 1.15;
-const CENTER = { x: 0.5, y: 0.53 };
+const ZOOM = 1.10
+const CENTER = { x: 0.50, y: 0.60 };
 
 const { width: srcW, height: srcH } = await sharp(src).metadata();
 const size = Math.round(Math.min(srcW, srcH) / ZOOM);
