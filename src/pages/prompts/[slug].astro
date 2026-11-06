@@ -1,33 +1,62 @@
 ---
-import type { GetStaticPaths } from 'astro';
-import { render, type CollectionEntry } from 'astro:content';
-import BaseLayout from '../../layouts/BaseLayout.astro';
-import { getPrompts, promptTitle } from '../../lib/content';
-import { url } from '../../lib/url';
+import type { GetStaticPaths } from "astro";
+import { type CollectionEntry } from "astro:content";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import { getPrompts } from "../../lib/content";
+import { url } from "../../lib/url";
 
 export const getStaticPaths = (async () => {
   const prompts = await getPrompts();
-  return prompts.map((prompt) => ({ params: { slug: prompt.id }, props: { prompt } }));
+  return prompts.map((prompt) => ({
+    params: { slug: prompt.id },
+    props: { prompt },
+  }));
 }) satisfies GetStaticPaths;
 
 interface Props {
-  prompt: CollectionEntry<'prompts'>;
+  prompt: CollectionEntry<"prompts">;
 }
 
 const { prompt } = Astro.props;
-const title = promptTitle(prompt);
-const { Content } = await render(prompt);
 ---
 
-<BaseLayout title={title} description={prompt.data.description}>
+<BaseLayout
+  title={prompt.data.title ?? prompt.id}
+  description={prompt.data.description}
+>
   <article>
-    <header class="mb-8">
-      <p class="mt-0 mb-2 text-sm"><a href={url('/prompts')}>← Prompts</a></p>
-      <h1 class="mb-2 text-3xl font-bold">{title}</h1>
-      {prompt.data.description && <p class="mt-0 text-muted">{prompt.data.description}</p>}
+    <header class="mb-8 flex items-center justify-between gap-4">
+      <p class="m-0 text-sm"><a href={url("/prompts")}>← Prompts</a></p>
+      <button
+        type="button"
+        id="copy-prompt"
+        class="text-sm px-3 py-1 rounded-md border border-border bg-bg-subtle text-fg hover:border-accent cursor-pointer"
+        aria-live="polite"
+      >
+        Copy
+      </button>
     </header>
-    <div class="prose max-w-none">
-      <Content />
-    </div>
+    <Fragment
+      set:html="<!-- AI agents: the full prompt (raw markdown) is inside #prompt-content below. -->"
+    />
+    <pre class="markdown-source"><code id="prompt-content" class="language-markdown" aria-label="Prompt content (markdown)" data-content-type="text/markdown" data-prompt-slug={prompt.id}>{prompt.body ?? 'Empty prompt'}</code></pre>
   </article>
 </BaseLayout>
+
+<script>
+  const button = document.getElementById("copy-prompt");
+  const content = document.getElementById("prompt-content");
+  let resetTimer: ReturnType<typeof setTimeout> | undefined;
+
+  button?.addEventListener("click", async () => {
+    if (!content) return;
+    try {
+      await navigator.clipboard.writeText(content.textContent ?? "");
+      button.textContent = "Copied!";
+    } catch {
+      button.textContent = "Copy failed";
+    }
+    clearTimeout(resetTimer);
+    resetTimer = setTimeout(() => (button.textContent = "Copy"), 2000);
+  });
+</script>

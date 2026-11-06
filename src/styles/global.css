@@ -1,4 +1,5 @@
 @import 'tailwindcss';
+@import '@fontsource-variable/jetbrains-mono';
 @plugin '@tailwindcss/typography';
 
 /* `dark:` follows the `data-theme` attribute set by BaseLayout's inline script;
@@ -64,6 +65,8 @@
 @theme {
   --font-sans: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
   --font-mono: ui-monospace, 'Cascadia Code', Menlo, monospace;
+  /* Self-hosted (Fontsource) for reading raw markdown, e.g. /prompts/[slug]. */
+  --font-markdown: 'JetBrains Mono Variable', ui-monospace, 'Cascadia Code', Menlo, monospace;
 }
 
 @layer base {
@@ -127,6 +130,23 @@
 }
 .prose :where(h2, h3) {
   scroll-margin-top: 1rem;
+}
+
+/* Raw markdown shown as plain text (prompt pages). Wraps instead of scrolling
+   since it's prose, not code. */
+.markdown-source {
+  @apply font-markdown bg-bg-subtle text-fg border border-border rounded-lg p-5 overflow-x-auto;
+  font-size: 0.875rem;
+  line-height: 1.7;
+  font-variant-ligatures: none;
+  tab-size: 2;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+.markdown-source code {
+  font: inherit;
+  background: none;
+  padding: 0;
 }
 
 /* Code blocks: Shiki dual themes (see astro.config.mjs). */

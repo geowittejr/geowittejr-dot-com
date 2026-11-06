@@ -1,6 +1,6 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
-import { getPrompts, promptTitle } from '../../lib/content';
+import { getPrompts } from '../../lib/content';
 import { url } from '../../lib/url';
 
 const prompts = await getPrompts();
@@ -15,7 +15,7 @@ const prompts = await getPrompts();
         {prompts.map((prompt) => (
           <li>
             <a href={url(`/prompts/${prompt.id}`)} class="font-semibold">
-              {promptTitle(prompt)}
+              {prompt.data.title}
             </a>
             {prompt.data.description && (
               <p class="mt-1 mb-0 text-sm text-muted">{prompt.data.description}</p>

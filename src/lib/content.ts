@@ -11,15 +11,10 @@ export async function getProjects(): Promise<CollectionEntry<'projects'>[]> {
   );
 }
 
-/** Display title for a prompt: frontmatter title, else the filename-based id. */
-export function promptTitle(prompt: CollectionEntry<'prompts'>): string {
-  return prompt.data.title ?? prompt.id;
-}
-
 /** Non-draft prompts, alphabetical by title. */
 export async function getPrompts(): Promise<CollectionEntry<'prompts'>[]> {
   const prompts = await getCollection('prompts', visible);
-  return prompts.sort((a, b) => promptTitle(a).localeCompare(promptTitle(b)));
+  return prompts.sort((a, b) => (a.data.title ?? a.id).localeCompare(b.data.title ?? b.id));
 }
 
 /** Non-draft posts, newest first. */
