@@ -36,4 +36,15 @@ const writing = defineCollection({
   }),
 });
 
-export const collections = { projects, writing };
+// Each file in src/content/prompts becomes /prompts/<filename>. All frontmatter is optional;
+// the title falls back to the filename.
+const prompts = defineCollection({
+  loader: glob({ pattern: '**/*.{md,mdx}', base: './src/content/prompts' }),
+  schema: z.object({
+    title: z.string().optional(),
+    description: z.string().optional(),
+    draft: z.boolean().default(false),
+  }),
+});
+
+export const collections = { projects, writing, prompts };

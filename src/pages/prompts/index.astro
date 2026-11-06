@@ -1,0 +1,30 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { getPrompts, promptTitle } from '../../lib/content';
+import { url } from '../../lib/url';
+
+const prompts = await getPrompts();
+---
+
+<BaseLayout title="Prompts" description="Prompts I use with AI tools.">
+  <h1 class="mb-2 text-3xl font-bold">Prompts</h1>
+  <p class="mt-0 mb-8 text-muted">Prompts I use with AI tools.</p>
+  {
+    prompts.length > 0 ? (
+      <ul class="m-0 grid list-none gap-4 p-0">
+        {prompts.map((prompt) => (
+          <li>
+            <a href={url(`/prompts/${prompt.id}`)} class="font-semibold">
+              {promptTitle(prompt)}
+            </a>
+            {prompt.data.description && (
+              <p class="mt-1 mb-0 text-sm text-muted">{prompt.data.description}</p>
+            )}
+          </li>
+        ))}
+      </ul>
+    ) : (
+      <p class="text-muted">Prompts coming soon.</p>
+    )
+  }
+</BaseLayout>

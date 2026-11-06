@@ -1,0 +1,33 @@
+---
+import type { GetStaticPaths } from 'astro';
+import { render, type CollectionEntry } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { getPrompts, promptTitle } from '../../lib/content';
+import { url } from '../../lib/url';
+
+export const getStaticPaths = (async () => {
+  const prompts = await getPrompts();
+  return prompts.map((prompt) => ({ params: { slug: prompt.id }, props: { prompt } }));
+}) satisfies GetStaticPaths;
+
+interface Props {
+  prompt: CollectionEntry<'prompts'>;
+}
+
+const { prompt } = Astro.props;
+const title = promptTitle(prompt);
+const { Content } = await render(prompt);
+---
+
+<BaseLayout title={title} description={prompt.data.description}>
+  <article>
+    <header class="mb-8">
+      <p class="mt-0 mb-2 text-sm"><a href={url('/prompts')}>← Prompts</a></p>
+      <h1 class="mb-2 text-3xl font-bold">{title}</h1>
+      {prompt.data.description && <p class="mt-0 text-muted">{prompt.data.description}</p>}
+    </header>
+    <div class="prose max-w-none">
+      <Content />
+    </div>
+  </article>
+</BaseLayout>
